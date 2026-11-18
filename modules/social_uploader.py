@@ -9,7 +9,10 @@ from typing import Any, Dict, Iterable, List
 from zoneinfo import ZoneInfo
 
 
-YOUTUBE_SCOPES = ["https://www.googleapis.com/auth/youtube.upload"]
+YOUTUBE_SCOPES = [
+    "https://www.googleapis.com/auth/youtube.upload",
+    "https://www.googleapis.com/auth/gmail.readonly",
+]
 
 
 def authenticate_youtube(workspace: str | Path) -> Any:
@@ -97,12 +100,27 @@ def upload_approved_clips(state: Dict[str, Any], workspace: str | Path,
     else:
         youtube = authenticate_youtube(workspace)
 
+    existing_urls = {
+        str(item.get("clip_id")): item
+        for item in state.get("live_urls", [])
+        if isinstance(item, dict)
+    }
     live_urls: List[Dict[str, Any]] = []
     for clip, slot in zip(clips, slots):
         clip_id = clip.get("id")
         path = Path(clip["path"])
         scheduled_for = _iso8601_utc(slot)
         video_id = ""
+
+        existing = existing_urls.get(str(clip_id))
+        if existing and existing.get("url"):
+            live_urls.append({
+                "clip_id": clip_id,
+                "url": existing["url"],
+                "scheduled_for": existing.get("scheduled_for", scheduled_for),
+                "submitted": bool(existing.get("submitted", False)),
+            })
+            continue
 
         if youtube is not None:
             try:
@@ -139,7 +157,7 @@ def upload_approved_clips(state: Dict[str, Any], workspace: str | Path,
             "clip_id": clip_id,
             "url": url,
             "scheduled_for": scheduled_for,
-            "submitted": bool(video_id),
+            "submitted": False,
         })
     state["live_urls"] = live_urls
     return live_urls

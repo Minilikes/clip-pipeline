@@ -1,0 +1,12 @@
+google-genai
+yt-dlp
+faster-whisper
+pysubs2
+ffmpeg-python
+pydantic
+pyperclip
+python-dotenv
+google-api-python-client
+google-auth-oauthlib
+google-auth-httplib2
+google-auth

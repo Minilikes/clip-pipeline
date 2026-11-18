@@ -37,6 +37,8 @@ def append_submitted_urls(state: Dict[str, Any], workspace: str | Path) -> Path:
                 existing[str(row.get("clip_id", ""))] = row
 
     for item in state.get("live_urls", []):
+        if not item.get("submitted"):
+            continue
         clip_id = str(item.get("clip_id", ""))
         url = str(item.get("url", "")).strip()
         if not clip_id or not url:

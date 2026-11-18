@@ -90,10 +90,6 @@ def _download_source_video(source_url: str, workspace: Path) -> None:
         if downloaded_url == source_url:
             print("Source video: reusing workspace/source.mp4")
             return
-        if not downloaded_url:
-            # Preserve compatibility with workspaces that predate the URL marker.
-            print("Source video: reusing workspace/source.mp4")
-            return
 
     ydl_opts = {
         "format": "bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4",
